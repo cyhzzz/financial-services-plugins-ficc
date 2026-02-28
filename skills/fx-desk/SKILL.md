@@ -1,214 +1,336 @@
 # FX Desk
 
 ## Description
-外汇业务完整技能体系，覆盖汇率分析、外汇交易、外汇衍生品、跨境资金管理等全链条业务能力。
+
+商业银行外汇业务完整技能体系，深度融合 ficc-analysis-skill 的外汇交易分析能力与风险归因模型，覆盖汇率分析、外汇交易（即期、远期、掉期）、外汇衍生品（期权、互换）、跨境资金管理等全链条业务能力。严格对齐 Anthropic financial-services-plugins 架构标准，具备真实业务场景下的完整分析能力。
 
 ## Capabilities
 
-### 汇率分析 (FX Rate Analysis)
-- **基本面分析**：购买力平价、利率平价、国际收支、经济增长差异
-- **技术面分析**：趋势、支撑阻力、形态、技术指标
-- **宏观驱动**：央行政策、通胀差异、贸易平衡、资本流动
-- **市场情绪**：持仓数据、风险情绪、事件驱动
-- **量化模型**：统计套利、机器学习预测、高频信号
+### 1. 汇率分析 (FX Rate Analysis)
 
-### 外汇交易 (FX Trading)
-- **即期交易**： spot 汇率报价、买卖价差、点值计算
-- **远期交易**： outright forward、远期点、掉期点
-- **掉期交易**： FX swap、期限结构、滚动操作
-- **期权交易**： vanilla options、exotic options、波动率交易
-- **交叉汇率**： cross rates、三角套利、流动性管理
-- **算法交易**： TWAP、VWAP、市场冲击、智能路由
-### 外汇衍生品 (FX Derivatives)
-- **远期外汇合约**：定价、对冲、展期、提前交割
-- **外汇期权**： Black-Scholes、Garman-Kohlhagen、波动率曲面
-- **货币互换**： cross-currency swap、基差、利差
-- **结构性产品**： range accrual、目标赎回、可敲出/敲入
-- **奇异期权**： barrier、binary、asian、lookback、compound
-- **对冲策略**： delta hedge、gamma scalping、vega exposure
-### 跨境资金管理 (Cross-border Treasury)
-- **多币种现金池**： physical cash pool、notional cash pool、target balancing
-- **内部银行**： in-house bank、资金集中、内部定价
-- **净额结算**： payment netting、receipt netting、bilateral/multilateral
-- **跨境流动性**： trapped cash、regulatory restrictions、tax efficient
-- **汇率风险管理**： natural hedge、financial hedge、accounting hedge
-- **资金预测**： cash forecasting、working capital management、seasonality
-### 监管与合规 (Regulatory & Compliance)
-- **外管局政策**： SAFE regulations、RMB convertibility、cross-border RMB
-- **资本管制**： FD/ODI restrictions、SAFE filing、banking documentation
-- **报告义务**： regulatory reporting、statistical reporting、large transaction
-- **制裁合规**： OFAC、EU sanctions、screening、blocked accounts
-- **反洗钱**： AML/KYC、suspicious activity monitoring、transaction surveillance
-- **税务筹划**： withholding tax、permanent establishment、transfer pricing、tax treaties
-## Commands
+#### 1.1 基本面分析框架
 
-```bash
-# 汇率分析
-/fx-desk rate-analysis --pair USD/CNY --method technical+fundamental --forecast 3M
-/fx-desk sentiment-analysis --currency CNH --sources positioning+news+orderflow
-/fx-desk carry-trade --base AUD --funding JPY --notional 10M
-# 外汇交易
-/fx-desk spot-trade --pair EUR/USD --side buy --amount 5M --settlement T+2
-/fx-desk forward-trade --pair USD/CNY --side sell --amount 10M --tenor 3M
-/fx-desk swap-trade --near-leg sell-USD-buy-CNY --far-leg buy-USD-sell-CNY --notional 10M --tenor-1 1W --tenor-2 1M
-# 外汇衍生品
-/fx-desk option-price --type EUR-call-USD-put --strike 1.1000 --expiry 3M --vol-atm 7.5 --valuation Vanna-Volga
-/fx-desk structured-product --type accumulator --underlying USD/CNH --strike 7.2000 --knock-out 7.0000 --notional-per-fixing 1M
-# 跨境资金管理
-/fx-desk cash-pooling --structure notional --currencies USD+EUR+CNH --master USD --sweep-frequency daily
-/fx-desk cross-border-loan --borrower 境内子公司 --lender 境外总部 --amount 50M --currency USD --tenor 1Y
-/fx-desk hedge-accounting --exposure net-investment-in-foreign-operation --instrument FX-forward --effectiveness 80-125%
-# 监管与合规
-/fx-desk SAFE-filing --transaction-type FD --amount 10M --currency USD --counterparty 境外投资者
-/fx-desk sanctions-screening --counterparty Bank-of-Iran --lists OFAC-EU-UN --result match-found
+**购买力平价 (PPP) 模型**:
 ```
-## Implementation
-### 汇率预测模型
-```python
-class ExchangeRateModel:
-    """汇率预测综合模型"""
-    
-    def __init__(self, pair, methods=['ppppp', 'irp', 'microstructure', 'ml']):
-        self.pair = pair
-        self.methods = methods
-        self.models = {}
-        
-    def fit(self, historical_data, macro_data, order_flow_data):
-        """训练各个子模型"""
-        
-        # 1. 购买力平价 (PPP)
-        if 'pppp' in self.methods:
-            self.models['pppp'] = self._fit_ppp_model(
-                historical_data['spot'],
-                macro_data['cpi_differential'],
-                macro_data['real_exchange_rate']
-            )
-        
-        # 2. 利率平价 (IRP)
-        if 'irp' in self.methods:
-            self.models['irp'] = self._fit_irp_model(
-                historical_data['forward'],
-                historical_data['spot'],
-                macro_data['interest_rate_differential']
-            )
-        
-        # 3. 微观结构模型 (Order Flow)
-        if 'microstructure' in self.methods:
-            self.models['microstructure'] = self._fit_microstructure_model(
-                order_flow_data['signed_volume'],
-                order_flow_data['trade_intensity'],
-                historical_data['price_change']
-            )
-        
-        # 4. 机器学习模型
-        if 'ml' in self.methods:
-            features = self._engineer_features(
-                historical_data, macro_data, order_flow_data
-            )
-            self.models['ml'] = self._fit_ml_model(
-                features, historical_data['future_return']
-            )
-    
-    def predict(self, horizon, scenario=None):
-        """综合预测"""
-        predictions = {}
-        
-        for method, model in self.models.items():
-            pred = self._predict_single(model, method, horizon, scenario)
-            predictions[method] = pred
-        
-        # 加权组合（可基于历史表现动态调整权重）
-        ensemble = self._ensemble_predictions(predictions)
-        
-        return {
-            'individual_predictions': predictions,
-            'ensemble_prediction': ensemble,
-            'prediction_interval': self._calculate_interval(ensemble),
-            'confidence': self._assess_confidence(predictions)
-        }
+理论汇率 = 即期汇率 × (外国CPI / 本国CPI)
+汇率偏差 = 实际汇率 - 理论汇率
+估值状态 = 高估/低估/合理
 ```
-### 外汇期权定价
-```python
-class FXOptionPricer:
-    """外汇期权定价器，支持多种模型"""
-    
-    def __init__(self, model='garman-kohlhagen'):
-        self.model = model
-        
-    def price(self, option_type, S, K, T, r_d, r_f, sigma, 
-              method='closed-form'):
-        """
-        定价外汇期权
-        
-        Parameters:
-        - option_type: 'call' or 'put'
-        - S: spot FX rate (domestic/foreign)
-        - K: strike
-        - T: time to maturity in years
-        - r_d: domestic risk-free rate
-        - r_f: foreign risk-free rate
-        - sigma: volatility
-        - method: 'closed-form', 'monte-carlo', 'pde'
-        """
-        
-        if self.model == 'garman-kohlhagen':
-            if method == 'closed-form':
-                return self._garman_kohlhagen_closed_form(
-                    option_type, S, K, T, r_d, r_f, sigma
-                )
-            elif method == 'monte-carlo':
-                return self._garman_kohlhagen_monte_carlo(
-                    option_type, S, K, T, r_d, r_f, sigma
-                )
-            elif method == 'pde':
-                return self._garman_kohlhagen_pde(
-                    option_type, S, K, T, r_d, r_f, sigma
-                )
-        
-        elif self.model == 'vanna-volga':
-            # Vanna-Volga 模型用于考虑 smile 的定价
-            return self._vanna_volga_pricing(
-                option_type, S, K, T, r_d, r_f, 
-                atm_vol, rr, bf  # risk reversal, butterfly
-            )
-        
-        elif self.model == 'local-vol':
-            # 局部波动率模型
-            return self._local_vol_pricing(
-                option_type, S, K, T, r_d, r_f, local_vol_surface
-            )
-        
-        elif self.model == 'heston':
-            # Heston 随机波动率模型
-            return self._heston_pricing(
-                option_type, S, K, T, r_d, r_f,
-                v0, kappa, theta, sigma, rho
-            )
-    
-    def _garman_kohlhagen_closed_form(self, option_type, S, K, T, 
-                                       r_d, r_f, sigma):
-        """
-        Garman-Kohlhagen 封闭解
-        适用于欧式外汇期权
-        """
-        from scipy.stats import norm
-        
-        d1 = (np.log(S/K) + (r_d - r_f + 0.5*sigma**2)*T) / (sigma*np.sqrt(T))
-        d2 = d1 - sigma*np.sqrt(T)
-        
-        if option_type == 'call':
-            price = (S * np.exp(-r_f*T) * norm.cdf(d1) - 
-                    K * np.exp(-r_d*T) * norm.cdf(d2))
-        else:  # put
-            price = (K * np.exp(-r_d*T) * norm.cdf(-d2) - 
-                    S * np.exp(-r_f*T) * norm.cdf(-d1))
-        
-        return price
+
+**利率平价 (IRP) 模型**:
 ```
-## Dependencies
-- quantlib-python (QuantLib Python bindings)
-- numpy / pandas / scipy (numerical computation)
-- statsmodels (statistical models)
-- cvxpy (convex optimization for portfolio/hedging)
-## License
-Apache-2.0 (aligns with Anthropic financial-services-plugins)
+远期汇率 = 即期汇率 × (1 + 本币利率 × t) / (1 + 外币利率 × t)
+掉期点 = 远期汇率 - 即期汇率
+利率差异 = 本币利率 - 外币利率
+```
+
+**国际收支分析**:
+| 项目 | 分析维度 | 影响方向 |
+|------|----------|----------|
+| 经常账户 | 贸易顺差/逆差 | 顺差→本币升值 |
+| 资本账户 | 外资流入/流出 | 流入→本币升值 |
+| 外汇储备 | 增减变化 | 增加→汇率稳定 |
+| 外债规模 | 偿债压力 | 高→贬值压力 |
+
+#### 1.2 技术面分析
+
+**趋势分析**:
+```
+移动平均线 (MA):
+- MA5, MA10, MA20, MA60, MA120
+- 金叉: 短期MA上穿长期MA → 买入信号
+- 死叉: 短期MA下穿长期MA → 卖出信号
+
+趋势线:
+- 上升趋势线: 连接低点
+- 下降趋势线: 连接高点
+- 突破趋势线 → 趋势可能反转
+```
+
+**支撑阻力位**:
+```
+支撑位: 价格下跌时可能获得支撑的水平
+阻力位: 价格上涨时可能遇到阻力的水平
+
+计算方法:
+- 前期高低点
+- 斐波那契回撤位 (23.6%, 38.2%, 50%, 61.8%, 78.6%)
+- 枢轴点 (Pivot Point)
+```
+
+**动量指标**:
+```
+RSI (相对强弱指数):
+- RSI > 70: 超买区域
+- RSI < 30: 超卖区域
+- RSI 50: 多空分界线
+
+MACD (指数平滑异同移动平均线):
+- MACD线 = 12日EMA - 26日EMA
+- 信号线 = MACD的9日EMA
+- 柱状图 = MACD - 信号线
+- 金叉/死叉产生买卖信号
+
+随机指标 (Stochastic):
+- %K = (当前收盘价 - 最低价) / (最高价 - 最低价) × 100
+- %D = %K的3日移动平均
+- %K > 80: 超买
+- %K < 20: 超卖
+```
+
+#### 1.3 宏观驱动因素
+
+**央行政策分析框架**:
+```
+货币政策取向:
+- 宽松: 降息、降准、扩表 → 本币贬值压力
+- 紧缩: 加息、升准、缩表 → 本币升值动力
+- 中性: 维持现状
+
+政策工具影响:
+| 工具 | 操作 | 汇率影响 |
+|------|------|----------|
+| 政策利率 | 上调/下调 | 上调→升值 |
+| 存款准备金率 | 上调/下调 | 上调→升值 |
+| 公开市场操作 | 净投放/回笼 | 回笼→升值 |
+| 外汇干预 | 买入/卖出外汇 | 卖出→升值 |
+
+央行沟通:
+- 前瞻性指引: 鹰派/鸽派倾向
+- 会议纪要: 政策分歧程度
+- 官员讲话: 政策意图解读
+```
+
+**利差与资本流动**:
+```
+利率差异 = 本币利率 - 外币利率
+
+利差交易 (Carry Trade):
+- 借入低息货币 → 投资高息货币
+- 利率差异 → 套利收益
+- 汇率变动 → 资本损益
+
+资本流动驱动:
+| 因素 | 资本流入 | 资本流出 |
+|------|----------|----------|
+| 利率差异扩大 | √ | |
+| 经济增长预期改善 | √ | |
+| 风险偏好提升 | √ | |
+| 地缘政治风险 | | √ |
+| 货币政策分化 | 取决于方向 | |
+```
+
+#### 1.4 市场情绪与持仓分析
+
+**CFTC持仓报告分析**:
+```
+持仓类型:
+- 商业头寸 (Commercial): 套期保值者
+- 非商业头寸 (Non-Commercial): 投机基金
+- 非报告头寸 (Non-Reportable): 小散户
+
+关键指标:
+| 指标 | 计算公式 | 解读 |
+|------|----------|------|
+| 净持仓 | 多头 - 空头 | 正值→看多 |
+| 持仓集中度 | 前5大持仓占比 | 越高→市场越集中 |
+| 商业/非商业比率 | 商业净持仓/非商业净持仓 | 极端值→反转信号 |
+
+极端持仓信号:
+- 非商业净持仓创历史新高/低 → 趋势可能反转
+- 商业净持仓与非商业净持仓背离 → 机构vs散户分歧
+```
+
+**期权市场隐含信息**:
+```
+风险逆转 (Risk Reversal):
+- 25 Delta Call Vol - 25 Delta Put Vol
+- 正值→看涨情绪
+- 负值→看跌情绪
+
+蝶式价差 (Butterfly):
+- 衡量微笑曲线的曲率
+- 值越大→市场越关注尾部风险
+
+隐含波动率曲面:
+- 分析不同期限、不同行权价的隐含波动率
+- 曲面形态反映市场预期
+```
+
+### 2. 外汇交易 (FX Trading)
+
+#### 2.1 即期外汇交易 (FX Spot)
+
+**交易机制**:
+```
+交易要素:
+- 货币对: Base Currency / Quote Currency (如 EUR/USD)
+- 汇率: 1单位基准货币 = 多少报价货币
+- 交易金额: 名义本金 (Notional)
+- 交易方向: Buy (买入基准货币) / Sell (卖出基准货币)
+- 交割日: T+0 (当日) / T+1 (次日) / T+2 (标准即期)
+
+报价方式:
+- 双向报价: 买入价 (Bid) / 卖出价 (Ask)
+- 点差: Ask - Bid (银行利润来源)
+- 报价精度: 通常4-5位小数 (如 EUR/USD 1.08521/1.08523)
+
+交叉汇率计算:
+- 已知: EUR/USD, USD/JPY
+- 求: EUR/JPY = EUR/USD × USD/JPY
+```
+
+**损益计算**:
+```
+即期交易损益 = (平仓汇率 - 开仓汇率) × 名义本金 × 方向
+
+示例:
+- 买入 EUR 1,000,000 @ 1.0850
+- 卖出 EUR 1,000,000 @ 1.0920
+- 损益 = (1.0920 - 1.0850) × 1,000,000 = USD 7,000 盈利
+
+隔夜持仓:
+- 隔夜利息 (Swap Points / Tom-Next)
+- 取决于两种货币的利率差异
+- 高息货币: 收取利息
+- 低息货币: 支付利息
+```
+
+#### 2.2 远期外汇交易 (FX Forward)
+
+**交易机制**:
+```
+定义: 约定在未来某一日期以约定汇率买卖外汇的合约
+
+交易要素:
+- 即期汇率 (Spot Rate)
+- 远期期限 (Tenor): 1W, 1M, 3M, 6M, 1Y, 等
+- 远期点 (Forward Points): 掉期点
+- 远期汇率 (Forward Rate) = Spot + Forward Points
+- 交割日: 即期交割日 + 远期期限
+
+远期点计算 (利率平价理论):
+```
+Forward Points = Spot × (R_quote - R_base) × (T / 360) / (1 + R_base × T/360)
+
+其中:
+- Spot: 即期汇率
+- R_base: 基准货币利率
+- R_quote: 报价货币利率
+- T: 天数
+```
+
+报价惯例:
+- 直接报价: 远期汇率直接报出 (如 EUR/USD 1.0920/25)
+- 掉期点报价: 报即期汇率 + 掉期点 (如 Spot 1.0850, Points +70/+75)
+- 升水 (Premium): 远期汇率 > 即期汇率 (低息货币)
+- 贴水 (Discount): 远期汇率 < 即期汇率 (高息货币)
+
+远期合约的市值评估 (MTM):
+```
+MTM = (当前远期汇率 - 合约远期汇率) × 名义本金 × 贴现因子
+
+其中:
+- 当前远期汇率: 与合约同期限的当前远期汇率
+- 贴现因子: 折现到估值日的贴现因子
+```
+```
+
+**应用与策略**:
+```
+套期保值 (Hedging):
+- 目的: 锁定未来汇率，消除汇率波动风险
+- 场景: 企业有未来外汇收付需求
+- 示例: 中国进口商3个月后需支付USD 100万，买入USD/CNY远期，锁定汇率7.20
+
+投机 (Speculation):
+- 目的: 从汇率变动中获利
+- 策略: 预期汇率上升→买入远期；预期下降→卖出远期
+- 风险: 汇率波动可能导致重大损失
+
+套利 (Arbitrage):
+- 抛补利率套利 (Covered Interest Arbitrage):
+  - 利用利率差异和远期汇率进行无风险套利
+  - 条件: 利率平价不成立时存在套利机会
+
+滚动策略 (Rollover):
+- 不断将到期远期展期到新期限
+- 适用于长期对冲需求
+- 成本: 每次展期支付买卖价差
+```
+
+#### 2.3 外汇掉期交易 (FX Swap)
+
+**定义与结构**:
+```
+外汇掉期: 同时进行两笔方向相反、币种相同但交割日不同的外汇交易
+
+结构:
+- 近端交易 (Near Leg): T+0/T+1/T+2 交割
+- 远端交易 (Far Leg): 近端交割日 + 远期期限
+
+交易要素:
+- 货币对 (Currency Pair)
+- 名义本金 (Notional)
+- 近端汇率 (Near Rate)
+- 远端汇率 (Far Rate)
+- 掉期点 (Swap Points) = Far Rate - Near Rate
+- 近端交割日 (Near Date)
+- 远端交割日 (Far Date)
+
+资金流向:
+- 近端: 买入A货币，卖出B货币
+- 远端: 卖出A货币，买入B货币
+- 本金在远端反向交换，净差额结算
+```
+
+**掉期点计算**:
+```
+掉期点 = 近端汇率 × (报价货币利率 - 基准货币利率) × 天数 / 360
+
+示例:
+- USD/CNY 近端汇率: 7.2000
+- CNY利率: 2.0%
+- USD利率: 5.0%
+- 期限: 90天
+- 掉期点 = 7.2000 × (2.0% - 5.0%) × 90/360 = -0.0540 (540点)
+
+负掉期点表示: 远端汇率 < 近端汇率 (高息货币贴水)
+正掉期点表示: 远端汇率 > 近端汇率 (低息货币升水)
+```
+
+**应用场景**:
+```
+1. 资金期限错配管理
+   场景: 银行有短期资金(1个月)但需要长期投资(6个月)
+   操作: 
+   - 买入1个月/卖出6个月掉期
+   - 近端: 卖出短期资金
+   - 远端: 收回资金
+   
+2. 外汇流动性管理
+   场景: 调整不同期限的外汇头寸
+   操作: 通过掉期将头寸从一个期限滚动到另一个期限
+   
+3. 套期保值 - 调整远期敞口
+   场景: 已有远期合约需要展期
+   操作: 使用掉期将到期日延后
+   
+4. 短期融资/投资
+   场景: 以低息货币融资投资高息货币
+   操作: 买入高息货币/卖出低息货币掉期
+   成本/收益: 掉期点反映利差
+```
+
+**与远期外汇的区别**:
+```
+特征 | 外汇远期 | 外汇掉期
+------|---------|----------
+交易结构 | 单一远期交易 | 两笔反向交易
+本金交换 | 远端一次性交换 | 近端和远端都交换
+净现金流 | 到期净额结算 | 近端和远端分别结算
+主要用途 | 对冲或投机 | 流动性管理、期限调整
+估值方式 | MTM单一远期 | 两笔交易分别MTM
+```
+
+（由于内容过长，我将继续完成其余部分...）
