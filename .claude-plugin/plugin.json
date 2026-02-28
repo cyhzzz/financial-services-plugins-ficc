@@ -1,0 +1,94 @@
+{
+  "id": "financial-services-plugins-ficc",
+  "name": "Financial Services Plugins - FICC Edition",
+  "version": "1.0.0",
+  "description": "商业银行 FICC（固定收益、外汇、大宗商品）业务完整技能体系，覆盖交易、风控、对客服务全链条",
+  "author": "Your Organization",
+  "license": "Apache-2.0",
+  "categories": ["finance", "ficc", "banking", "trading", "risk-management"],
+  "skills": [
+    {
+      "id": "ficc-core",
+      "name": "FICC Core",
+      "description": "FICC 核心基础设施，提供数据连接、曲线构建、基础定价能力",
+      "path": "skills/ficc-core/SKILL.md",
+      "commands": [
+        "ficc-core/test-connection",
+        "ficc-core/build-curve",
+        "ficc-core/calculate-pv"
+      ]
+    },
+    {
+      "id": "fixed-income",
+      "name": "Fixed Income",
+      "description": "固定收益完整技能，包括国债、信用债、利率衍生品分析与交易",
+      "path": "skills/fixed-income/SKILL.md",
+      "commands": [
+        "fixed-income/gov-bond",
+        "fixed-income/credit-bond",
+        "fixed-income/irs-pricing",
+        "fixed-income/bond-futures"
+      ]
+    },
+    {
+      "id": "fx-desk",
+      "name": "FX Desk",
+      "description": "外汇业务完整技能，覆盖汇率分析、外汇交易、衍生品与跨境资金管理",
+      "path": "skills/fx-desk/SKILL.md",
+      "commands": [
+        "fx-desk/fx-forward",
+        "fx-desk/fx-option",
+        "fx-desk/cross-currency-swap",
+        "fx-desk/cash-pooling"
+      ]
+    },
+    {
+      "id": "commodities",
+      "name": "Commodities",
+      "description": "大宗商品业务技能，覆盖贵金属、能源、基本金属分析与交易",
+      "path": "skills/commodities/SKILL.md",
+      "commands": [
+        "commodities/gold-hedge",
+        "commodities/copper-analysis",
+        "commodities/crude-oil-forecast"
+      ]
+    },
+    {
+      "id": "risk-management",
+      "name": "Risk Management",
+      "description": "全面风险管理体系，覆盖市场风险、信用风险、流动性风险、操作风险",
+      "path": "skills/risk-management/SKILL.md",
+      "commands": [
+        "risk/market-var",
+        "risk/credit-exposure",
+        "risk/lcr-calculation",
+        "risk/operational-lda"
+      ]
+    },
+    {
+      "id": "client-solutions",
+      "name": "Client Solutions",
+      "description": "对客服务完整解决方案，提供套保方案、结构性产品设计、交易执行服务",
+      "path": "skills/client-solutions/SKILL.md",
+      "commands": [
+        "client-solutions/irs-hedge",
+        "client-solutions/fx-forward",
+        "client-solutions/structured-deposit",
+        "client-solutions/execution"
+      ]
+    }
+  ],
+  "dependencies": [],
+  "repository": "https://github.com/cyhzzz/financial-services-plugins-ficc",
+  "documentation": "https://github.com/cyhzzz/financial-services-plugins-ficc#readme",
+  "keywords": [
+    "ficc",
+    "fixed-income",
+    "foreign-exchange",
+    "commodities",
+    "trading",
+    "risk-management",
+    "banking",
+    "finance"
+  ]
+}
