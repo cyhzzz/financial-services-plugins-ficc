@@ -1,0 +1,56 @@
+site_name: FICC Financial Services Plugins
+site_description: 基于 Anthropic 架构的商业银行 FICC 业务完整技能体系
+site_author: cyhzzz
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/cyhzzz/financial-services-plugins-ficc
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - footnotes
+  - toc:
+      permalink: true
+
+nav:
+  - 首页: index.md
+  - 技能体系:
+    - 核心插件:
+      - FICC Core: skills/ficc-core/SKILL.md
+      - 风险管理: skills/risk-management/SKILL.md
+    - 业务插件:
+      - 固定收益: skills/fixed-income/SKILL.md
+      - 外汇交易: skills/fx-desk/SKILL.md
+      - 大宗商品: skills/commodities/SKILL.md
+    - 对客插件:
+      - 客户解决方案: skills/client-solutions/SKILL.md
+      - 销售交易: skills/sales-trading/SKILL.md
+    - 平台插件:
+      - FICC BI平台: skills/ficc-bi-platform/SKILL.md
+  - 集成报告: docs/FICC-BI-Platform-Integration-Report.md
+  - GitHub: https://github.com/cyhzzz/financial-services-plugins-ficc
