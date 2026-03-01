@@ -1,144 +1,190 @@
-# Risk Management
+---
+name: risk-management
+description: 风险管理插件 - 市场风险、信用风险、流动性风险管理
+dependency:
+  python:
+    - pandas>=2.0.0
+    - numpy>=1.24.0
+---
 
-## Description
+# 风险管理插件 (Risk Management)
 
-商业银行 FICC 业务全面风险管理体系，深度融合 ficc-analysis-skill 的风险计量与归因分析能力，严格遵循 Anthropic financial-services-plugins 架构标准，覆盖市场风险、信用风险、流动性风险、操作风险四大类别，提供风险识别、计量、监控、报告完整能力。具备真实业务场景下的风险量化分析、压力测试、限额管理、监管报送等核心能力。
+## 概述
 
-## Capabilities
+风险管理插件是FICC核心插件层的重要组成部分，提供全面的风险管理能力，包括市场风险、信用风险、流动性风险的计量、监控和报告。
 
-### 1. 市场风险 (Market Risk)
+## 功能模块
 
-#### 1.1 风险价值模型 (VaR/CVaR)
+### 1. 市场风险管理 (Market Risk)
 
-**参数法 (Parametric/Variance-Covariance)**:
-
-**理论基础**:
-- 假设组合收益率服从正态分布
-- 使用均值-方差框架计算风险
-- 适用于线性工具或近似线性组合
-
-**数学模型**:
-
-单个资产VaR:
-```
-VaR = Z_α × σ × √t × V
-
-其中:
-- Z_α: 置信水平对应的分位数 (99%→2.33, 95%→1.65)
-- σ: 资产收益率的标准差 (日波动率)
-- t: 持有期 (天数)
-- V: 资产市值
-```
-
-组合VaR (考虑相关性):
-```
-VaR_p = Z_α × σ_p × √t × V_p
-
-组合波动率:
-σ_p = √(w^T × Σ × w) = √(Σᵢ Σⱼ wᵢ × wⱼ × σᵢ × σⱼ × ρᵢⱼ)
-
-其中:
-- w: 资产权重向量 (n×1)
-- Σ: 协方差矩阵 (n×n)
-- σᵢ, σⱼ: 资产i,j的波动率
-- ρᵢⱼ: 资产i,j的相关系数
-```
-
-边际VaR (增量风险贡献):
-```
-ΔVaRᵢ = VaR(with asset i) - VaR(without asset i)
-
-或解析法:
-ΔVaRᵢ = Z_α × (Σ × w)ᵢ / σ_p × √t × V_p / V_p
+```python
+class MarketRiskManager:
+    """市场风险管理器"""
+    
+    def calculate_var(self, portfolio, method="historical", confidence=0.99):
+        """
+        计算VaR
+        
+        Methods: historical, parametric, monte_carlo
+        """
+        pass
+    
+    def calculate_cvar(self, portfolio, confidence=0.99):
+        """计算CVaR/Expected Shortfall"""
+        pass
+    
+    def calculate_sensitivities(self, portfolio):
+        """
+        计算敏感度指标
+        
+        包括：PV01, CS01, Delta, Gamma, Vega等
+        """
+        pass
+    
+    def perform_stress_test(self, portfolio, scenarios):
+        """执行压力测试"""
+        pass
+    
+    def monitor_risk_limits(self, portfolio, limits):
+        """监控风险限额"""
+        pass
 ```
 
-成分VaR (风险归因):
-```
-Component VaRᵢ = wᵢ × ΔVaRᵢ = wᵢ × Z_α × (Σ × w)ᵢ / σ_p × √t × V_p
+### 2. 信用风险管理 (Credit Risk)
 
-归一化: Σ Component VaRᵢ = VaR_p
-```
-
-**CVaR (Expected Shortfall/Conditional VaR)**:
-```
-CVaR_α = E[L | L > VaR_α] = (1 / (1-α)) × ∫[VaR_α,∞] L × f(L) dL
-
-正态分布假设下:
-CVaR_α = σ × φ(Z_α) / (1-α) × √t × V
-
-其中φ为标准正态密度函数:
-- 99% CVaR ≈ 2.67 × σ × √t × V (vs VaR = 2.33 × σ × √t × V)
-- 95% CVaR ≈ 2.06 × σ × √t × V (vs VaR = 1.65 × σ × √t × V)
-```
-
-**模型优缺点**:
-
-| 优点 | 缺点 |
-|------|------|
-| 计算速度快，可实时更新 | 假设收益率正态分布（实际有肥尾） |
-| 可解析计算边际风险和风险归因 | 对非线性工具（如期权）近似误差大 |
-| 易于扩展到多资产组合 | 对极端事件（黑天鹅）估计不足 |
-| 参数敏感性分析简单 | 相关系数在危机时趋于1（模型风险） |
-
-**历史模拟法 (Historical Simulation)**:
-
-**理论基础**:
-- 不假设收益率分布形式
-- 直接使用历史收益率数据
-- 通过历史分位数估计VaR
-
-**数学模型**:
-
-```
-基本步骤:
-1. 收集历史收益率数据 (通常为1-5年日度数据)
-2. 计算组合在当前持仓下的历史损益分布
-3. 取损益分布的α分位数作为VaR
-
-组合损益计算:
-对于历史场景s (s=1,2,...,n):
-L_s = Σᵢ (Vᵢ × R_{i,s})
-
-其中:
-- Vᵢ: 资产i的当前市值
-- R_{i,s}: 资产i在场景s的历史收益率
-- L_s: 场景s下的组合损益
-
-VaR估计:
-VaR_α = -Percentile({L_s}, α×100)
-
-例如99% VaR = -第1百分位数 (最坏的1%场景)
-
-CVaR估计:
-CVaR_α = -Mean({L_s | L_s ≤ -VaR_α})
+```python
+class CreditRiskManager:
+    """信用风险管理器"""
+    
+    def calculate_exposure(self, counterparty, trades):
+        """
+        计算敞口
+        
+        包括：当前敞口、潜在未来敞口(PFE)
+        """
+        pass
+    
+    def calculate_cva(self, portfolio, counterparty_data):
+        """
+        计算信用估值调整(CVA)
+        """
+        pass
+    
+    def calculate_pfe(self, portfolio, confidence=0.99, horizon=252):
+        """
+        计算潜在未来敞口(PFE)
+        """
+        pass
+    
+    def assess_counterparty_risk(self, counterparty_id):
+        """评估交易对手风险"""
+        pass
+    
+    def monitor_credit_limits(self, exposures, limits):
+        """监控信用限额"""
+        pass
 ```
 
-**加权历史模拟法 (Weighted Historical Simulation)**:
+### 3. 流动性风险管理 (Liquidity Risk)
 
+```python
+class LiquidityRiskManager:
+    """流动性风险管理器"""
+    
+    def calculate_lcr(self, assets, liabilities):
+        """
+        计算流动性覆盖率(LCR)
+        
+        LCR = High Quality Liquid Assets / Net Cash Outflows over 30 days
+        """
+        pass
+    
+    def calculate_nsf(self, assets, liabilities):
+        """
+        计算净稳定资金比率(NSFR)
+        
+        NSFR = Available Stable Funding / Required Stable Funding
+        """
+        pass
+    
+    def assess_funding_liquidity(self, portfolio):
+        """评估融资流动性"""
+        pass
+    
+    def assess_market_liquidity(self, positions):
+        """评估市场流动性"""
+        pass
+    
+    def stress_liquidity(self, portfolio, stress_scenarios):
+        """流动性压力测试"""
+        pass
 ```
-为了解决简单历史模拟法对近期和远期事件同等对待的问题:
 
-权重分配:
-- 指数衰减权重: w_t = λ^(T-t) × (1-λ) / (1-λ^T)
-  其中λ为衰减因子 (通常0.94-0.99)
-  t为时间点，T为总期数
+### 4. 风险报告与监控
 
-- 最近数据获得更高权重，反映市场变化
-
-加权VaR计算:
-1. 将历史损益按大小排序
-2. 计算累积权重直到达到1-α
-3. 通过线性插值得到加权VaR
+```python
+class RiskReporting:
+    """风险报告"""
+    
+    def generate_daily_risk_report(self, portfolios):
+        """生成日度风险报告"""
+        pass
+    
+    def generate_risk_appetite_report(self, risk_metrics, limits):
+        """生成风险偏好报告"""
+        pass
+    
+    def generate_stress_test_report(self, stress_results):
+        """生成压力测试报告"""
+        pass
+    
+    def create_risk_dashboard(self, real_time_data):
+        """创建风险仪表盘"""
+        pass
 ```
 
-**模型优缺点**:
+## 与业务插件的集成
 
-| 优点 | 缺点 |
-|------|------|
-| 不依赖分布假设，捕捉实际历史肥尾 | 假设历史会重演（可能错过新类型风险） |
-| 直观易懂，容易向管理层解释 | 对极端事件估计依赖历史样本量 |
-| 自动捕捉资产间相关性（历史中隐含） | 数据周期选择主观（太短=样本不足，太长=过时） |
-| 计算相对简单（排序取分位数） | 对组合变化需要重新计算全部历史场景 |
-| | 平滑处理导致对近期变化反应滞后 |
+```python
+# 业务插件使用风险管理服务示例
 
-（由于内容过长，我将继续完成其余部分...）
+from core_plugins.risk_management import MarketRiskManager, CreditRiskManager
+from core_plugins.ficc_core import CurveBuilder
+
+class FixedIncomePlugin:
+    def __init__(self):
+        self.market_risk_mgr = MarketRiskManager()
+        self.credit_risk_mgr = CreditRiskManager()
+        self.curve_builder = CurveBuilder()
+    
+    def analyze_portfolio_risk(self, bond_portfolio):
+        # 计算VaR
+        var_result = self.market_risk_mgr.calculate_var(
+            portfolio=bond_portfolio,
+            method="historical",
+            confidence=0.99
+        )
+        
+        # 计算敏感度
+        sensitivities = self.market_risk_mgr.calculate_sensitivities(
+            portfolio=bond_portfolio
+        )
+        
+        # 计算信用敞口
+        credit_exposure = self.credit_risk_mgr.calculate_exposure(
+            counterparty=bond_portfolio.counterparty,
+            trades=bond_portfolio.trades
+        )
+        
+        return {
+            "var": var_result,
+            "sensitivities": sensitivities,
+            "credit_exposure": credit_exposure
+        }
+```
+
+## 依赖项
+
+- pandas >= 2.0.0
+- numpy >= 1.24.0
+- scipy >= 1.11.0

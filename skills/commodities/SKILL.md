@@ -1,369 +1,230 @@
-# Commodities
+---
+name: commodities
+description: 大宗商品业务插件 - 贵金属、能源、基本金属分析与估值
+dependency:
+  python:
+    - pandas>=2.0.0
+    - numpy>=1.24.0
+---
 
-## Description
+# 大宗商品业务插件 (Commodities)
 
-商业银行大宗商品业务完整技能体系，深度融合 ficc-analysis-skill 的大宗商品分析能力与风险归因模型，覆盖贵金属（黄金、白银）、能源（原油、天然气）、基本金属（铜、铝、锌等）的全品类分析、定价、交易、套期保值与风险管理。严格对齐 Anthropic financial-services-plugins 架构标准，具备真实业务场景下的完整分析能力。
+## 概述
 
-## Capabilities
+大宗商品业务插件是FICC业务插件层的重要组成部分，专注于大宗商品市场的分析、交易和风险管理，包括贵金属（黄金、白银、铂金）、能源（原油、天然气）、基本金属（铜、铝、锌）等。
 
-### 1. 贵金属分析 (Precious Metals)
+## 功能模块
 
-#### 1.1 黄金市场分析框架
+### 1. 贵金属分析
 
-**价格驱动因素模型**:
-
-| 驱动因素 | 影响机制 | 指标监控 | 权重 |
-|---------|---------|---------|------|
-| **实际利率** | 实际利率↑ → 黄金持有成本↑ → 金价↓ | 10Y TIPS收益率 | 30% |
-| **美元指数** | 美元↑ → 以美元计价黄金变贵 → 需求↓ | DXY指数 | 25% |
-| **通胀预期** | 通胀↑ → 抗通胀需求↑ → 金价↑ | 5Y5Y远期盈亏平衡 | 20% |
-| **地缘政治** | 风险事件 → 避险需求↑ → 金价↑ | VIX指数、地缘风险指数 | 15% |
-| **央行购金** | 央行净买入 → 需求↑ → 金价↑ | 世界黄金协会数据 | 10% |
-
-**黄金价格预测模型**:
-
-```
-黄金价格 = f(实际利率, 美元指数, 通胀预期, 地缘政治风险, 央行购金)
-
-多元回归模型:
-ln(金价) = β0 + β1×实际利率 + β2×ln(美元指数) + β3×通胀预期 + β4×地缘风险 + β5×央行购金 + ε
-
-模型评估指标:
-- R² > 0.75: 模型解释力强
-- RMSE < 5%: 预测误差可接受
-- Directional Accuracy > 65%: 方向预测准确率
-```
-
-**供需平衡分析**:
-
-| 供给端 | 年度量级 | 增长趋势 | 价格弹性 |
-|--------|---------|---------|---------|
-| 矿山产量 | 3,600吨 | +2% | 低 |
-| 再生金 | 1,200吨 | +5% | 中 |
-| 生产商对冲 | 200吨 | 波动大 | 高 |
-| **总供给** | **5,000吨** | **+2.5%** | |
-
-| 需求端 | 年度量级 | 增长趋势 | 价格弹性 |
-|--------|---------|---------|---------|
-| 珠宝首饰 | 2,200吨 | +3% | 高 |
-| 科技工业 | 330吨 | +1% | 低 |
-| 投资需求 | 1,200吨 | 波动大 | 极高 |
-| 央行购金 | 1,000吨 | +15% | 极低 |
-| **总需求** | **4,730吨** | **+5%** | |
-
-**供需缺口 = 供给 - 需求 = 270吨 (过剩)**
-
-#### 1.2 白银市场分析
-
-**金银比分析**:
-
-```
-金银比 = 黄金价格 / 白银价格
-
-历史区间分析:
-- 长期均值: 60-70
-- 低估区域: <40 (白银相对黄金便宜)
-- 高估区域: >80 (白银相对黄金贵)
-
-均值回归策略:
-- 金银比 > 80: 买入白银，卖出黄金
-- 金银比 < 40: 卖出白银，买入黄金
-- 止损: 金银比突破历史极值95%分位数
+```python
+class PreciousMetalAnalyzer:
+    """贵金属分析器"""
+    
+    def analyze_gold_market(self, market_data):
+        """
+        分析黄金市场
+        
+        包括：价格走势、波动率分析、与美元指数相关性、实际利率影响
+        """
+        pass
+    
+    def calculate_lease_rate(self, spot_price, forward_price, tenor):
+        """
+        计算黄金租赁利率
+        
+        Lease Rate = (Forward / Spot - 1) / Tenor
+        """
+        pass
+    
+    def analyze_gold_silver_ratio(self, gold_price, silver_price):
+        """
+        分析金银比
+        
+        识别金银比交易机会
+        """
+        pass
+    
+    def calculate_storage_cost(self, metal_type, quantity, duration):
+        """
+        计算仓储成本
+        
+        包括：保险、安保、运输、融资成本
+        """
+        pass
 ```
 
-**白银双重属性**:
+### 2. 能源分析
 
-| 属性 | 占比 | 驱动因素 | 价格波动 |
-|------|------|---------|---------|
-| **贵金属属性** | 40% | 投资需求、避险 | 跟随黄金 |
-| **工业属性** | 60% | 光伏、电子、医疗 | 跟随经济周期 |
-
-**工业需求细分**:
-- 光伏: 40% (银浆)
-- 电子电气: 20% (导电银胶)
-- 焊接材料: 15% (银焊条)
-- 化工催化: 10%
-- 其他: 15%
-
-#### 1.3 铂金与钯金分析
-
-**汽车催化剂需求**:
-
-| 车型 | 催化剂 | 金属用量 | 市场趋势 |
-|------|--------|---------|---------|
-| 汽油车 | 三元催化器 | 钯金 2-3g | 新能源车替代 |
-| 柴油车 | SCR+DPF | 铂金 3-5g | 欧洲禁售柴油车 |
-| 混动车 | 三元催化器 | 钯金 1-2g | 过渡期需求 |
-
-**供给集中度风险**:
-
-| 国家 | 产量占比 | 政治风险 | 供应链脆弱性 |
-|------|---------|---------|-------------|
-| 南非 | 70% | 高 (电力危机、罢工) | 极高 |
-| 俄罗斯 | 15% | 高 (制裁) | 高 |
-| 津巴布韦 | 10% | 中 | 中 |
-| 其他 | 5% | 低 | 低 |
-
-### 2. 能源分析 (Energy)
-
-#### 2.1 原油市场分析
-
-**全球原油市场结构**:
-
-| 基准油种 | 产地 | API重度 | 含硫量 | 定价区域 |
-|---------|------|---------|--------|---------|
-| **WTI** | 美国德州 | 39.6° | 0.24% | 北美 |
-| **Brent** | 北海 | 38.3° | 0.37% | 欧洲、非洲 |
-| **Dubai** | 中东 | 31.0° | 2.0% | 亚洲 |
-| **Tapis** | 马来西亚 | 45.5° | 0.03% | 亚洲轻质油 |
-| **Urals** | 俄罗斯 | 31.7° | 1.35% | 欧洲 |
-
-**原油价差分析**:
-
-```
-WTI-Brent价差:
-- 历史正常区间: -2 to +2 USD/bbl
-- 价差扩大原因: 
-  * WTI端: 美国产量↑、管道瓶颈、库存↑
-  * Brent端: OPEC+减产、地缘政治风险↑
-- 交易策略: 价差回归均值时套利
-
-Brent-Dubai价差 (EFS):
-- 反映轻质低硫 vs 重质高硫原油价差
-- 炼厂需求结构变化影响
--  IMO 2020低硫油规定后价差扩大
+```python
+class EnergyAnalyzer:
+    """能源分析器"""
+    
+    def analyze_crude_oil_curve(self, futures_data):
+        """
+        分析原油期货曲线
+        
+        包括：期限结构（Contango/Backwardation）、裂解价差
+        """
+        pass
+    
+    def calculate_crack_spread(self, crude_price, product_prices):
+        """
+        计算裂解价差
+        
+        3:2:1 Crack Spread = (2 * Gasoline + 1 * Diesel - 3 * Crude) / 3
+        """
+        pass
+    
+    def analyze_natural_gas_storage(self, storage_data, injection_withdrawal):
+        """
+        分析天然气库存
+        
+        季节性分析、供需平衡
+        """
+        pass
+    
+    def calculate_convenience_yield(self, spot_price, futures_price, rate, storage_cost, tenor):
+        """
+        计算便利收益
+        
+        反映持有实物商品的非货币收益
+        """
+        pass
 ```
 
-**基本面分析框架**:
+### 3. 基本金属分析
 
-**供给端分析**:
-
-| 供给来源 | 日产量 (百万桶) | 份额 | 边际成本 | 价格敏感性 |
-|---------|---------------|------|---------|-----------|
-| OPEC | 28.0 | 28% | $10-20 | 高 |
-| 美国页岩油 | 13.0 | 13% | $50-70 | 极高 |
-| 俄罗斯 | 10.5 | 11% | $15-25 | 中 |
-| 加拿大油砂 | 4.5 | 5% | $40-60 | 中 |
-| 巴西深水 | 3.5 | 4% | $35-50 | 中 |
-| 其他非OPEC | 35.0 | 35% | - | - |
-| **全球总计** | **100.0** | **100%** | | |
-
-**OPEC+政策分析**:
-
-```
-OPEC+产量决策框架:
-1. 市场平衡评估:
-   - 全球需求增长预测 (IEA/EIA/OPEC月报)
-   - 非OPEC+供给增长 (美国页岩油、巴西、圭亚那等)
-   - 库存水平变化 (OECD商业库存天数)
-
-2. 价格目标区间:
-   - 沙特财政平衡油价: ~$80/bbl
-   - 俄罗斯财政平衡油价: ~$60-70/bbl
-   - 美国页岩油盈亏平衡: $50-70/bbl ( Permian核心区更低)
-
-3. 产量配额决策:
-   - 基准产量水平
-   - 减产/增产幅度 (万桶/日)
-   - 豁免国 (伊朗、委内瑞拉、利比亚)
-   - 自愿减产 (沙特额外减产)
-
-4. 执行监督:
-   - JMMC (联合部长级监督委员会) 月度会议
-   - 二手来源产量数据
-   - 合规率计算
-```
-
-**美国页岩油动态分析**:
-
-```
-美国原油产量驱动因素:
-
-1. 钻机活动 (Rig Count):
-   - Baker Hughes周度钻机数
-   - 分盆地统计 (Permian, Eagle Ford, Bakken, Niobrara)
-   - 钻机效率: 每台钻机年产量提升
-
-2. DUC井 (Drilled but Uncompleted):
-   - EIA月度DUC井统计
-   - 完井活动 vs 钻井活动
-   - DUC井可作为快速增产储备
-
-3. 生产商财务状况:
-   - 资本纪律: 自由现金流分配 (再投资 vs 股东回报)
-   - 套期保值比例: 锁定未来产量价格
-   - 债务水平: 影响再投资能力
-
-4. 基础设施约束:
-   - 管道运能: Permian外输管道扩建
-   - 出口终端: 墨西哥湾LNG出口能力
-   - 炼油厂产能: 本土轻质油加工能力
-
-5. 政策环境:
-   - 联邦土地钻探许可
-   - 环保法规 (甲烷排放限制)
-   - 出口管制 (原油出口禁令已解除)
+```python
+class BaseMetalAnalyzer:
+    """基本金属分析器"""
+    
+    def analyze_copper_market(self, market_data, inventory_data, china_demand):
+        """
+        分析铜市场
+        
+        关注：全球库存、中国需求、矿山供应、废铜供应
+        """
+        pass
+    
+    def calculate_lme_basis(self, lme_price, domestic_price, fx_rate, duties, freight):
+        """
+        计算LME基差
+        
+        识别内外盘套利机会
+        """
+        pass
+    
+    def analyze_inventory_cycle(self, inventory_data, consumption_data, production_data):
+        """
+        分析库存周期
+        
+        识别主动补库、被动补库、主动去库、被动去库阶段
+        """
+        pass
+    
+    def calculate_mining_cost_curve(self, mine_production_data):
+        """
+        计算矿山成本曲线
+        
+        分析价格支撑位、90分位成本线
+        """
+        pass
 ```
 
-**需求端分析**:
+### 4. 商品衍生品定价
 
-| 需求部门 | 占比 | 增长趋势 | 价格弹性 | 关键驱动因素 |
-|---------|------|---------|---------|-------------|
-| **交通燃料** | 60% | 增长放缓 | 低 | 电动车替代、燃油经济性 |
-| **化工原料** | 15% | 稳定增长 | 中 | 石化产品需求 |
-| **工业燃料** | 12% | 缓慢下降 | 中 | 天然气替代、能效提升 |
-| **发电** | 8% | 快速下降 | 高 | 可再生能源替代 |
-| **其他** | 5% | 稳定 | - | - |
-
-**区域需求分析**:
-
-```
-OECD国家需求:
-- 特点: 成熟市场、需求峰值已过、结构转型中
-- 趋势: 交通燃料需求下降 (电动车替代)
-- 关键指标: 单车油耗下降率、电动车渗透率
-
-非OECD国家需求:
-- 特点: 快速增长、工业化城市化进程
-- 增长引擎: 中国、印度、东南亚
-- 关键指标: 人均石油消费、汽车保有量增长
-
-中国需求 (全球最大原油进口国):
-- 战略储备: SPR (战略石油储备) 补库/释放
-- 炼厂产能: 民营大炼化投产进度
-- 出口配额: 成品油出口配额政策
-- 电动车: 新能源车渗透率快速提升
-```
-
-**库存分析**:
-
-```
-库存类型与意义:
-
-1. 战略储备 (SPR - Strategic Petroleum Reserve):
-   - 目的: 国家能源安全、应对供应中断
-   - 规模: 美国约7亿桶 (可满足约70天净进口)
-   - 动用: 总统命令、IEA协调释放、测试性销售
-   - 影响: 大规模释放可短期压低油价10-20%
-
-2. 商业库存 (Commercial Stocks):
-   - 分布: 炼油厂、码头、管道、加油站
-   - 统计: EIA周度数据 (美国)、IEA月报 (OECD)
-   - 季节性: 春季检修期累库、夏季驾驶季去库
-   - 解读: 
-     * 库存天数 > 5年均值 + 1标准差 → 油价下行压力
-     * 库存天数 < 5年均值 - 1标准差 → 油价上行支撑
-
-3. 浮动库存 (Floating Storage):
-   - 定义: 储存在油轮上的原油
-   - 触发: 正价差 (Contango) 足够覆盖存储成本
-   - 监测: 卫星图像、AIS船舶追踪
-   - 意义: 浮动库存激增预示现货供应过剩
-
-库存与价格关系:
-- 库存变化领先价格变化约1-3个月
-- 库存拐点往往对应价格拐点
-- 极端库存水平 (>90%或<10%分位数)预示趋势反转
+```python
+class CommodityDerivativePricer:
+    """商品衍生品定价器"""
+    
+    def price_commodity_future(self, spot_price, cost_of_carry, convenience_yield, rate, tenor):
+        """
+        定价商品期货
+        
+        F = S × exp((r + u - y) × T)
+        
+        u: storage cost rate
+        y: convenience yield
+        """
+        pass
+    
+    def price_commodity_option(self, option_params, market_data, model="black_76"):
+        """
+        定价商品期权
+        
+        Models: Black-76, Black-Scholes, American Binomial
+        """
+        pass
+    
+    def price_commodity_swap(self, swap_params, forward_curve, discount_curve):
+        """
+        定价商品互换
+        
+        包括：浮动对固定、浮动对浮动、基差互换
+        """
+        pass
+    
+    def price_gold_lease(self, lease_params, gold_rate_curve):
+        """
+        定价黄金租赁
+        """
+        pass
 ```
 
-**价差与裂解分析**:
+## 与核心插件的集成
 
+```python
+# 商品业务插件使用核心服务示例
+
+from core_plugins.ficc_core import CurveBuilder, PricingEngine
+from core_plugins.risk_management import MarketRiskManager
+
+class CommoditiesPlugin:
+    def __init__(self):
+        self.curve_builder = CurveBuilder()
+        self.risk_manager = MarketRiskManager()
+        self.gold_analyzer = PreciousMetalAnalyzer()
+        self.energy_analyzer = EnergyAnalyzer()
+        self.pricer = CommodityDerivativePricer()
+    
+    def analyze_gold_portfolio(self, gold_positions, market_data):
+        # 分析黄金市场
+        market_analysis = self.gold_analyzer.analyze_gold_market(
+            market_data=market_data
+        )
+        
+        # 计算租赁利率
+        for position in gold_positions:
+            if position.is_lease:
+                lease_rate = self.gold_analyzer.calculate_lease_rate(
+                    spot_price=market_data.spot_price,
+                    forward_price=market_data.forward_price,
+                    tenor=position.tenor
+                )
+        
+        # 衍生品定价
+        for option in gold_positions.options:
+            option_price = self.pricer.price_commodity_option(
+                option_params=option.params,
+                market_data=market_data,
+                model="black_76"
+            )
+        
+        # 风险计算
+        var_result = self.risk_manager.calculate_var(
+            portfolio=gold_positions,
+            method="historical",
+            confidence=0.99
+        )
+        
+        return {
+            "market_analysis": market_analysis,
+            "var_result": var_result
+        }
 ```
-原油价差分析:
 
-1. 时间价差 (Time Spread):
-   - 定义: 同一品种不同交割月份的价格差
-   - 结构:
-     * Contango (正向市场): 远月价格 > 近月价格
-       原因: 库存充裕、存储成本、便利收益低
-       策略: 买入近月、卖出远月 (存储套利)
-     
-     * Backwardation (反向市场): 近月价格 > 远月价格
-       原因: 现货紧张、库存低、便利收益高
-       策略: 卖出现货、买入远月 (库存套利)
-   
-   - 应用:
-     * 预测库存变化: Contango扩大→预期累库
-     * 套利机会识别: 价差偏离理论值时
+## 依赖项
 
-2. 品质价差 (Quality Differential):
-   - 定义: 不同品质原油的价格差
-   - 基准: 以某种标准品质为基准，其他品质加减价差
-   - 示例:
-     * WTI (轻甜) vs Dubai (重酸): WTI通常溢价
-     * 价差变化: 炼厂设备升级→重油加工能力↑→重油溢价↑
-
-3. 地域价差 (Location Spread):
-   - 定义: 同一品质原油在不同地点的价格差
-   - 主要价差:
-     * WTI-Brent价差: 反映北美与欧洲市场供需差异
-     * Brent-Dubai价差: 反映欧洲与亚洲市场差异
-     * Oman-Dubai价差: 中东官方售价调整基准
-   - 影响因素:
-     * 运输成本: 油轮运费波动
-     * 管道运力: 基础设施约束
-     * 地区供需: 库存水平、炼厂开工率
-     * 贸易流变化: 制裁、关税政策
-
-裂解价差分析 (Crack Spread):
-
-定义: 成品油价格与原油原料价格之差，代表炼厂加工利润
-
-主要裂解价差:
-1. 3:2:1裂解价差 (美国)
-   - 公式: (2×汽油价格 + 1×柴油价格) / 3 - 原油价格
-   - 代表: 每桶原油加工利润
-   - 应用: 炼厂套期保值、投机交易
-
-2. 简单裂解价差
-   - 公式: 单一成品油价格 - 原油价格
-   - 类型:
-     * 汽油裂解: RBOB - WTI
-     * 柴油裂解: ULSD - Brent
-     * 石脑油裂解: Naphtha - Dubai
-
-3. 地区裂解价差比较:
-   | 地区 | 典型裂解价差 | 特点 |
-   |------|-------------|------|
-   | 美国墨西哥湾 | WTI 3:2:1 | 页岩油优势、出口导向 |
-   | 欧洲鹿特丹 | Brent 3:2:1 | 复杂炼厂、环保要求 |
-   | 新加坡 | Dubai 3:2:1 | 亚洲基准、轻油偏好 |
-   | 中国 | 地炼成本+利润 | 配额管理、原料多元 |
-
-裂解价差交易策略:
-
-1. 套期保值 (Hedging):
-   - 场景: 炼厂锁定加工利润
-   - 操作: 
-     * 卖出裂解价差 (卖出成品油期货 + 买入原油期货)
-     * 锁定未来加工利润
-   - 效果: 利润确定性↑，但放弃超额利润机会
-
-2. 方向性交易 (Speculation):
-   - 看涨裂解价差: 买入裂解价差
-     * 预期: 成品油需求↑、炼厂产能↓
-   - 看跌裂解价差: 卖出裂解价差
-     * 预期: 经济衰退、成品油需求↓
-
-3. 跨区套利 (Arbitrage):
-   - 场景: 不同地区裂解价差差异过大
-   - 操作: 
-     * 买入低价地区裂解价差
-     * 卖出高价地区裂解价差
-   - 条件: 运输成本 + 关税 < 价差收益
-
-4. 季节性交易 (Seasonal):
-   - 美国驾驶季 (5-9月): 汽油需求↑ → 汽油裂解↑
-   - 冬季取暖季 (11-3月): 柴油/取暖油需求↑ → 柴油裂解↑
-   - 炼厂检修季 (春季/秋季): 供给↓ → 裂解↑
-
-裂解价差影响因素:
-
-| 因素 | 影响方向 | 机制 |
-|------|---------|------|
-| 原油价格 | 正相关 | 原油↑ → 原料成本↑ → 裂解收窄 |
-| 成品油需求 | 正相关 | 需求↑ → 产品价格↑ → 裂解扩大 |
-| 炼厂产能利用率 | 负相关 | 产能↑ → 供给↑ → 产品价格↓ → 裂解收窄 |
-| 炼厂检修 | 正相关 | 检修↑ → 供给↓ → 产品价格↑ → 裂解扩大 |
-| 环保法规 | 正相关 | 法规趋严 → 升级成本↑ → 裂解扩大 |
-| 库存水平 | 负相关 | 库存↑ → 供给过剩 → 产品价格↓ → 裂解收窄 |
+- pandas >= 2.0.0
+- numpy >= 1.24.0

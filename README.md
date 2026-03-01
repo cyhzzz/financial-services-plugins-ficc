@@ -14,7 +14,7 @@
 ├── Business Plugins（业务插件）
 │   ├── fixed-income/       # 固收业务 - 利率债、信用债、衍生品
 │   ├── fx-desk/            # 外汇业务 - 汇率分析、外汇交易、衍生品
-│   └── commodities/        # 大宗商品 - 贵金属、能源、基本金属
+│   └── commodities/      # 大宗商品 - 贵金属、能源、基本金属
 │
 └── Client Plugins（对客插件）
     ├── client-solutions/   # 对客服务 - 套保方案、结构性产品、交易执行
