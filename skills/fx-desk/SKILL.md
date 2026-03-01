@@ -1,336 +1,231 @@
-# FX Desk
+---
+name: fx-desk
+description: 外汇业务插件 - 汇率分析、外汇交易、衍生品分析与估值
+dependency:
+  python:
+    - pandas>=2.0.0
+    - numpy>=1.24.0
+---
 
-## Description
+# 外汇业务插件 (FX Desk)
 
-商业银行外汇业务完整技能体系，深度融合 ficc-analysis-skill 的外汇交易分析能力与风险归因模型，覆盖汇率分析、外汇交易（即期、远期、掉期）、外汇衍生品（期权、互换）、跨境资金管理等全链条业务能力。严格对齐 Anthropic financial-services-plugins 架构标准，具备真实业务场景下的完整分析能力。
+## 概述
 
-## Capabilities
+外汇业务插件是FICC业务插件层的重要组成部分，专注于外汇市场的分析、交易和风险管理，包括即期外汇、远期外汇、外汇期权、货币互换等产品。
 
-### 1. 汇率分析 (FX Rate Analysis)
+## 功能模块
 
-#### 1.1 基本面分析框架
+### 1. 汇率分析与预测
 
-**购买力平价 (PPP) 模型**:
-```
-理论汇率 = 即期汇率 × (外国CPI / 本国CPI)
-汇率偏差 = 实际汇率 - 理论汇率
-估值状态 = 高估/低估/合理
-```
-
-**利率平价 (IRP) 模型**:
-```
-远期汇率 = 即期汇率 × (1 + 本币利率 × t) / (1 + 外币利率 × t)
-掉期点 = 远期汇率 - 即期汇率
-利率差异 = 本币利率 - 外币利率
-```
-
-**国际收支分析**:
-| 项目 | 分析维度 | 影响方向 |
-|------|----------|----------|
-| 经常账户 | 贸易顺差/逆差 | 顺差→本币升值 |
-| 资本账户 | 外资流入/流出 | 流入→本币升值 |
-| 外汇储备 | 增减变化 | 增加→汇率稳定 |
-| 外债规模 | 偿债压力 | 高→贬值压力 |
-
-#### 1.2 技术面分析
-
-**趋势分析**:
-```
-移动平均线 (MA):
-- MA5, MA10, MA20, MA60, MA120
-- 金叉: 短期MA上穿长期MA → 买入信号
-- 死叉: 短期MA下穿长期MA → 卖出信号
-
-趋势线:
-- 上升趋势线: 连接低点
-- 下降趋势线: 连接高点
-- 突破趋势线 → 趋势可能反转
-```
-
-**支撑阻力位**:
-```
-支撑位: 价格下跌时可能获得支撑的水平
-阻力位: 价格上涨时可能遇到阻力的水平
-
-计算方法:
-- 前期高低点
-- 斐波那契回撤位 (23.6%, 38.2%, 50%, 61.8%, 78.6%)
-- 枢轴点 (Pivot Point)
+```python
+class FXAnalyzer:
+    """外汇分析器"""
+    
+    def analyze_exchange_rate(self, currency_pair, historical_data):
+        """
+        分析汇率走势
+        
+        包括：趋势分析、波动性分析、技术指标
+        """
+        pass
+    
+    def calculate_carry_trade_return(self, funding_ccy, investment_ccy, rates_data):
+        """
+        计算套利交易收益
+        
+        Carry Return = (Investment Rate - Funding Rate) + FX Return
+        """
+        pass
+    
+    def analyze_purchasing_power_parity(self, currency_pair, inflation_data):
+        """
+        分析购买力平价
+        """
+        pass
+    
+    def calculate_real_effective_exchange_rate(self, currency, trade_weights):
+        """
+        计算实际有效汇率(REER)
+        """
+        pass
 ```
 
-**动量指标**:
-```
-RSI (相对强弱指数):
-- RSI > 70: 超买区域
-- RSI < 30: 超卖区域
-- RSI 50: 多空分界线
+### 2. 外汇敞口管理
 
-MACD (指数平滑异同移动平均线):
-- MACD线 = 12日EMA - 26日EMA
-- 信号线 = MACD的9日EMA
-- 柱状图 = MACD - 信号线
-- 金叉/死叉产生买卖信号
-
-随机指标 (Stochastic):
-- %K = (当前收盘价 - 最低价) / (最高价 - 最低价) × 100
-- %D = %K的3日移动平均
-- %K > 80: 超买
-- %K < 20: 超卖
-```
-
-#### 1.3 宏观驱动因素
-
-**央行政策分析框架**:
-```
-货币政策取向:
-- 宽松: 降息、降准、扩表 → 本币贬值压力
-- 紧缩: 加息、升准、缩表 → 本币升值动力
-- 中性: 维持现状
-
-政策工具影响:
-| 工具 | 操作 | 汇率影响 |
-|------|------|----------|
-| 政策利率 | 上调/下调 | 上调→升值 |
-| 存款准备金率 | 上调/下调 | 上调→升值 |
-| 公开市场操作 | 净投放/回笼 | 回笼→升值 |
-| 外汇干预 | 买入/卖出外汇 | 卖出→升值 |
-
-央行沟通:
-- 前瞻性指引: 鹰派/鸽派倾向
-- 会议纪要: 政策分歧程度
-- 官员讲话: 政策意图解读
+```python
+class FXExposureManager:
+    """外汇敞口管理器"""
+    
+    def calculate_position_exposure(self, positions, base_currency):
+        """
+        计算头寸敞口
+        
+        按币种、期限、类型分解敞口
+        """
+        pass
+    
+    def calculate_cash_flow_exposure(self, cash_flows, currencies):
+        """
+        计算现金流敞口
+        
+        分析未来各币种现金流入流出
+        """
+        pass
+    
+    def calculate_translation_exposure(self, foreign_assets, exchange_rates):
+        """
+        计算折算敞口
+        
+        境外资产负债因汇率变动产生的账面损益
+        """
+        pass
+    
+    def generate_hedge_recommendations(self, exposure_analysis, hedge_instruments):
+        """
+        生成对冲建议
+        
+        推荐最优对冲工具和比例
+        """
+        pass
 ```
 
-**利差与资本流动**:
-```
-利率差异 = 本币利率 - 外币利率
+### 3. 外汇衍生品定价与分析
 
-利差交易 (Carry Trade):
-- 借入低息货币 → 投资高息货币
-- 利率差异 → 套利收益
-- 汇率变动 → 资本损益
-
-资本流动驱动:
-| 因素 | 资本流入 | 资本流出 |
-|------|----------|----------|
-| 利率差异扩大 | √ | |
-| 经济增长预期改善 | √ | |
-| 风险偏好提升 | √ | |
-| 地缘政治风险 | | √ |
-| 货币政策分化 | 取决于方向 | |
-```
-
-#### 1.4 市场情绪与持仓分析
-
-**CFTC持仓报告分析**:
-```
-持仓类型:
-- 商业头寸 (Commercial): 套期保值者
-- 非商业头寸 (Non-Commercial): 投机基金
-- 非报告头寸 (Non-Reportable): 小散户
-
-关键指标:
-| 指标 | 计算公式 | 解读 |
-|------|----------|------|
-| 净持仓 | 多头 - 空头 | 正值→看多 |
-| 持仓集中度 | 前5大持仓占比 | 越高→市场越集中 |
-| 商业/非商业比率 | 商业净持仓/非商业净持仓 | 极端值→反转信号 |
-
-极端持仓信号:
-- 非商业净持仓创历史新高/低 → 趋势可能反转
-- 商业净持仓与非商业净持仓背离 → 机构vs散户分歧
-```
-
-**期权市场隐含信息**:
-```
-风险逆转 (Risk Reversal):
-- 25 Delta Call Vol - 25 Delta Put Vol
-- 正值→看涨情绪
-- 负值→看跌情绪
-
-蝶式价差 (Butterfly):
-- 衡量微笑曲线的曲率
-- 值越大→市场越关注尾部风险
-
-隐含波动率曲面:
-- 分析不同期限、不同行权价的隐含波动率
-- 曲面形态反映市场预期
+```python
+class FXDerivativePricer:
+    """外汇衍生品定价器"""
+    
+    def price_fx_forward(self, spot_rate, domestic_rate, foreign_rate, maturity):
+        """
+        定价外汇远期
+        
+        F = S × exp((r_d - r_f) × T)
+        """
+        pass
+    
+    def price_fx_swap(self, near_date, far_date, spot_rate, points):
+        """
+        定价外汇掉期
+        """
+        pass
+    
+    def price_fx_option(self, option_params, market_data, model="garman_kohlhagen"):
+        """
+        定价外汇期权
+        
+        Models: Garman-Kohlhagen, Vanna-Volga, Local Volatility
+        """
+        pass
+    
+    def price_ccs(self, ccs_params, discount_curves):
+        """
+        定价货币互换(CCS)
+        """
+        pass
+    
+    def calculate_option_greeks(self, fx_option, market_data):
+        """
+        计算外汇期权希腊字母
+        
+        包括：Delta, Gamma, Vega, Theta, Rho, Vanna, Volga
+        """
+        pass
 ```
 
-### 2. 外汇交易 (FX Trading)
+### 4. 套保有效性分析
 
-#### 2.1 即期外汇交易 (FX Spot)
-
-**交易机制**:
-```
-交易要素:
-- 货币对: Base Currency / Quote Currency (如 EUR/USD)
-- 汇率: 1单位基准货币 = 多少报价货币
-- 交易金额: 名义本金 (Notional)
-- 交易方向: Buy (买入基准货币) / Sell (卖出基准货币)
-- 交割日: T+0 (当日) / T+1 (次日) / T+2 (标准即期)
-
-报价方式:
-- 双向报价: 买入价 (Bid) / 卖出价 (Ask)
-- 点差: Ask - Bid (银行利润来源)
-- 报价精度: 通常4-5位小数 (如 EUR/USD 1.08521/1.08523)
-
-交叉汇率计算:
-- 已知: EUR/USD, USD/JPY
-- 求: EUR/JPY = EUR/USD × USD/JPY
-```
-
-**损益计算**:
-```
-即期交易损益 = (平仓汇率 - 开仓汇率) × 名义本金 × 方向
-
-示例:
-- 买入 EUR 1,000,000 @ 1.0850
-- 卖出 EUR 1,000,000 @ 1.0920
-- 损益 = (1.0920 - 1.0850) × 1,000,000 = USD 7,000 盈利
-
-隔夜持仓:
-- 隔夜利息 (Swap Points / Tom-Next)
-- 取决于两种货币的利率差异
-- 高息货币: 收取利息
-- 低息货币: 支付利息
-```
-
-#### 2.2 远期外汇交易 (FX Forward)
-
-**交易机制**:
-```
-定义: 约定在未来某一日期以约定汇率买卖外汇的合约
-
-交易要素:
-- 即期汇率 (Spot Rate)
-- 远期期限 (Tenor): 1W, 1M, 3M, 6M, 1Y, 等
-- 远期点 (Forward Points): 掉期点
-- 远期汇率 (Forward Rate) = Spot + Forward Points
-- 交割日: 即期交割日 + 远期期限
-
-远期点计算 (利率平价理论):
-```
-Forward Points = Spot × (R_quote - R_base) × (T / 360) / (1 + R_base × T/360)
-
-其中:
-- Spot: 即期汇率
-- R_base: 基准货币利率
-- R_quote: 报价货币利率
-- T: 天数
+```python
+class FXHedgeEffectivenessAnalyzer:
+    """外汇套保有效性分析器"""
+    
+    def dollar_offset_test(self, hedged_item, hedging_instrument, period):
+        """
+        美元抵消法测试
+        
+        比率在80%-125%之间为高度有效
+        """
+        pass
+    
+    def regression_analysis(self, hedged_item_series, hedging_instrument_series):
+        """
+        回归分析
+        
+        R² ≥ 0.8 且斜率在0.8-1.25之间为高度有效
+        """
+        pass
+    
+    def calculate_hedge_ineffectiveness(self, hedged_item, hedging_instrument):
+        """
+        计算套保无效部分
+        
+        用于会计处理和风险管理
+        """
+        pass
+    
+    def generate_hedge_documentation(self, hedge_relationship, effectiveness_results):
+        """
+        生成套保文档
+        
+        满足会计准则要求的套保文档
+        """
+        pass
 ```
 
-报价惯例:
-- 直接报价: 远期汇率直接报出 (如 EUR/USD 1.0920/25)
-- 掉期点报价: 报即期汇率 + 掉期点 (如 Spot 1.0850, Points +70/+75)
-- 升水 (Premium): 远期汇率 > 即期汇率 (低息货币)
-- 贴水 (Discount): 远期汇率 < 即期汇率 (高息货币)
+## 与核心插件的集成
 
-远期合约的市值评估 (MTM):
-```
-MTM = (当前远期汇率 - 合约远期汇率) × 名义本金 × 贴现因子
+```python
+# 外汇业务插件使用核心服务示例
 
-其中:
-- 当前远期汇率: 与合约同期限的当前远期汇率
-- 贴现因子: 折现到估值日的贴现因子
-```
-```
+from core_plugins.ficc_core import CurveBuilder, DataConnectionManager
+from core_plugins.risk_management import MarketRiskManager
 
-**应用与策略**:
-```
-套期保值 (Hedging):
-- 目的: 锁定未来汇率，消除汇率波动风险
-- 场景: 企业有未来外汇收付需求
-- 示例: 中国进口商3个月后需支付USD 100万，买入USD/CNY远期，锁定汇率7.20
-
-投机 (Speculation):
-- 目的: 从汇率变动中获利
-- 策略: 预期汇率上升→买入远期；预期下降→卖出远期
-- 风险: 汇率波动可能导致重大损失
-
-套利 (Arbitrage):
-- 抛补利率套利 (Covered Interest Arbitrage):
-  - 利用利率差异和远期汇率进行无风险套利
-  - 条件: 利率平价不成立时存在套利机会
-
-滚动策略 (Rollover):
-- 不断将到期远期展期到新期限
-- 适用于长期对冲需求
-- 成本: 每次展期支付买卖价差
-```
-
-#### 2.3 外汇掉期交易 (FX Swap)
-
-**定义与结构**:
-```
-外汇掉期: 同时进行两笔方向相反、币种相同但交割日不同的外汇交易
-
-结构:
-- 近端交易 (Near Leg): T+0/T+1/T+2 交割
-- 远端交易 (Far Leg): 近端交割日 + 远期期限
-
-交易要素:
-- 货币对 (Currency Pair)
-- 名义本金 (Notional)
-- 近端汇率 (Near Rate)
-- 远端汇率 (Far Rate)
-- 掉期点 (Swap Points) = Far Rate - Near Rate
-- 近端交割日 (Near Date)
-- 远端交割日 (Far Date)
-
-资金流向:
-- 近端: 买入A货币，卖出B货币
-- 远端: 卖出A货币，买入B货币
-- 本金在远端反向交换，净差额结算
+class FXDeskPlugin:
+    def __init__(self):
+        self.curve_builder = CurveBuilder()
+        self.data_conn = DataConnectionManager()
+        self.risk_manager = MarketRiskManager()
+        self.fx_analyzer = FXAnalyzer()
+        self.fx_pricer = FXDerivativePricer()
+    
+    def analyze_fx_portfolio(self, fx_portfolio, market_data):
+        # 获取市场数据
+        fx_rates = self.data_conn.connect_market_data("bloomberg").get_fx_rates()
+        
+        # 分析汇率走势
+        trend_analysis = self.fx_analyzer.analyze_exchange_rate(
+            currency_pair=fx_portfolio.base_currency + fx_portfolio.quote_currency,
+            historical_data=market_data.historical_rates
+        )
+        
+        # 计算敞口
+        exposure = FXExposureManager().calculate_position_exposure(
+            positions=fx_portfolio.positions,
+            base_currency="CNY"
+        )
+        
+        # 衍生品定价
+        for option in fx_portfolio.options:
+            price = self.fx_pricer.price_fx_option(
+                option_params=option.params,
+                market_data=market_data,
+                model="garman_kohlhagen"
+            )
+        
+        # 风险计算
+        var_result = self.risk_manager.calculate_var(
+            portfolio=fx_portfolio,
+            method="historical",
+            confidence=0.99
+        )
+        
+        return {
+            "trend_analysis": trend_analysis,
+            "exposure": exposure,
+            "risk_metrics": var_result
+        }
 ```
 
-**掉期点计算**:
-```
-掉期点 = 近端汇率 × (报价货币利率 - 基准货币利率) × 天数 / 360
+## 依赖项
 
-示例:
-- USD/CNY 近端汇率: 7.2000
-- CNY利率: 2.0%
-- USD利率: 5.0%
-- 期限: 90天
-- 掉期点 = 7.2000 × (2.0% - 5.0%) × 90/360 = -0.0540 (540点)
-
-负掉期点表示: 远端汇率 < 近端汇率 (高息货币贴水)
-正掉期点表示: 远端汇率 > 近端汇率 (低息货币升水)
-```
-
-**应用场景**:
-```
-1. 资金期限错配管理
-   场景: 银行有短期资金(1个月)但需要长期投资(6个月)
-   操作: 
-   - 买入1个月/卖出6个月掉期
-   - 近端: 卖出短期资金
-   - 远端: 收回资金
-   
-2. 外汇流动性管理
-   场景: 调整不同期限的外汇头寸
-   操作: 通过掉期将头寸从一个期限滚动到另一个期限
-   
-3. 套期保值 - 调整远期敞口
-   场景: 已有远期合约需要展期
-   操作: 使用掉期将到期日延后
-   
-4. 短期融资/投资
-   场景: 以低息货币融资投资高息货币
-   操作: 买入高息货币/卖出低息货币掉期
-   成本/收益: 掉期点反映利差
-```
-
-**与远期外汇的区别**:
-```
-特征 | 外汇远期 | 外汇掉期
-------|---------|----------
-交易结构 | 单一远期交易 | 两笔反向交易
-本金交换 | 远端一次性交换 | 近端和远端都交换
-净现金流 | 到期净额结算 | 近端和远端分别结算
-主要用途 | 对冲或投机 | 流动性管理、期限调整
-估值方式 | MTM单一远期 | 两笔交易分别MTM
-```
-
-（由于内容过长，我将继续完成其余部分...）
+- pandas >= 2.0.0
+- numpy >= 1.24.0

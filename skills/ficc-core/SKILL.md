@@ -1,131 +1,156 @@
-# FICC Core
+---
+name: ficc-core
+description: FICC 核心插件 - 数据连接、基础建模、统一接口
+dependency:
+  python:
+    - pandas>=2.0.0
+    - numpy>=1.24.0
+---
 
-## Description
+# FICC 核心插件 (FICC Core)
 
-FICC 核心基础设施技能，为固定收益、外汇、大宗商品业务提供统一的数据连接、基础建模和标准化接口。深度融合 ficc-analysis-skill 的数据架构和计算引擎能力，严格对齐 Anthropic financial-services-plugins 架构标准，是连接上游数据源与下游业务应用的核心枢纽，具备真实业务场景下的高性能、高可靠、可扩展的基础服务能力。
+## 概述
 
-## Capabilities
+FICC核心插件是整个FICC技能集合的基础层，提供统一的数据连接、基础建模和标准化接口，为上层的业务插件和对客插件提供服务。
 
-### 1. 数据连接 (Data Connectivity)
+## 功能模块
 
-#### 1.1 多源数据接入架构
+### 1. 数据连接层 (Data Connection)
 
-**数据源分类与接入方式**:
-
-| 数据源类型 | 代表系统 | 数据内容 | 接入频率 | 延迟要求 | 接入方式 |
-|-----------|---------|---------|---------|---------|---------|
-| **行情终端** | Bloomberg, Reuters Eikon | 实时行情、历史数据、新闻 | 实时 | <100ms | API/专有协议 |
-| **国内数据** | Wind, 同花顺iFinD | A股债券、宏观数据、基金 | 实时/日度 | <1s | API/SDK |
-| **交易所** | 中金所、上金所、外汇交易中心 | 成交数据、持仓数据 | 实时 | <500ms | 专线接入 |
-| **交易平台** | Summit, Murex, 恒生 | 交易数据、持仓数据 | 实时 | <1s | 数据库/API |
-| **风险系统** | Algorithmics, 自研系统 | 风险指标、限额数据 | 实时/小时 | <5min | API/消息队列 |
-| **财务系统** | SAP, Oracle | 会计数据、损益数据 | 日度/月度 | <1day | ETL/数据库 |
-| **外部数据** | 央行、统计局、海关 | 宏观经济数据 | 月度/季度 | <1week | 爬虫/API |
-
-**统一数据接入框架**:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    统一数据接入层 (Data Ingestion Layer)        │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
-│  │ 实时行情接入 │  │ 批量数据接入 │  │ 事件驱动接入 │          │
-│  │ (Streaming) │  │  (Batch)    │  │  (Event)    │          │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘          │
-│         │                │                │                │
-│         ▼                ▼                ▼                │
-│  ┌──────────────────────────────────────────────────┐     │
-│  │              数据标准化与清洗层                      │     │
-│  │  - 数据格式转换 (JSON/Protobuf/XML/CSV)           │     │
-│  │  - 字段映射与标准化                               │     │
-│  │  - 数据质量校验 (完整性、准确性、时效性)          │     │
-│  │  - 异常数据处理 (插值、剔除、标记)                 │     │
-│  └──────────────────────────────────────────────────┘     │
-│                          │                                │
-│                          ▼                                │
-│  ┌──────────────────────────────────────────────────┐     │
-│  │              数据存储与缓存层                        │     │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌───────────┐  │     │
-│  │  │ 实时缓存    │  │ 时序数据库  │  │ 关系数据库 │  │     │
-│  │  │ (Redis)     │  │(InfluxDB)   │  │(PostgreSQL)│  │     │
-│  │  └─────────────┘  └─────────────┘  └───────────┘  │     │
-│  └──────────────────────────────────────────────────┘     │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**数据标准化规范**:
-
-```yaml
-# 统一数据模型定义
-data_models:
-  market_data:
-    tick_data:
-      fields:
-        - symbol: string  # 合约代码
-        - timestamp: datetime  # 时间戳
-        - bid_price: decimal(18,6)  # 买入价
-        - ask_price: decimal(18,6)  # 卖出价
-        - bid_size: decimal(18,4)  # 买入量
-        - ask_size: decimal(18,4)  # 卖出量
-        - last_price: decimal(18,6)  # 最新成交价
-        - last_size: decimal(18,4)  # 最新成交量
-        - volume: decimal(18,4)  # 累计成交量
-        - open_interest: decimal(18,4)  # 持仓量
-      primary_key: [symbol, timestamp]
-      indexes:
-        - idx_symbol_time: [symbol, timestamp]
+```python
+class DataConnectionManager:
+    """数据连接管理器"""
+    
+    def connect_database(self, db_type, connection_params):
+        """
+        连接数据库
         
-    bar_data:
-      fields:
-        - symbol: string
-        - timestamp: datetime
-        - open: decimal(18,6)
-        - high: decimal(18,6)
-        - low: decimal(18,6)
-        - close: decimal(18,6)
-        - volume: decimal(18,4)
-        - open_interest: decimal(18,4)
-      primary_key: [symbol, timestamp, frequency]
-      
-  trade_data:
-    trade_execution:
-      fields:
-        - trade_id: string  # 成交编号
-        - order_id: string  # 订单编号
-        - symbol: string  # 合约代码
-        - side: enum(BUY, SELL)  # 买卖方向
-        - quantity: decimal(18,4)  # 成交数量
-        - price: decimal(18,6)  # 成交价格
-        - trade_time: datetime  # 成交时间
-        - counterparty: string  # 交易对手
-        - trading_venue: string  # 交易场所
-        - settlement_date: date  # 结算日
-      primary_key: [trade_id]
-      indexes:
-        - idx_order: [order_id]
-        - idx_symbol_time: [symbol, trade_time]
-        - idx_counterparty: [counterparty, trade_time]
+        支持类型：Oracle, MySQL, PostgreSQL, MongoDB
+        """
+        pass
+    
+    def connect_market_data(self, provider):
+        """
+        连接行情数据
         
-  position_data:
-    position_holding:
-      fields:
-        - position_id: string
-        - account_id: string
-        - symbol: string
-        - quantity: decimal(18,4)  # 持仓数量
-        - average_cost: decimal(18,6)  # 平均成本
-        - market_price: decimal(18,6)  # 市价
-        - market_value: decimal(18,4)  # 市值
-        - unrealized_pnl: decimal(18,4)  # 未实现损益
-        - realized_pnl: decimal(18,4)  # 已实现损益
-        - position_date: date
-        - last_update: datetime
-      primary_key: [position_id, position_date]
-      indexes:
-        - idx_account_symbol: [account_id, symbol, position_date]
-        - idx_symbol_date: [symbol, position_date]
+        支持：Bloomberg, Reuters, Wind, 内部系统
+        """
+        pass
+    
+    def connect_trading_system(self, system_name):
+        """
+        连接交易系统
+        
+        支持：Summit, Calypso, Murex, 自研系统
+        """
+        pass
 ```
 
-（由于内容过长，我将继续完成其余部分...）
+### 2. 基础建模层 (Base Modeling)
+
+```python
+class CurveBuilder:
+    """曲线构建器"""
+    
+    def build_yield_curve(self, instruments, method="cubic_spline"):
+        """
+        构建收益率曲线
+        
+        Methods: linear, cubic_spline, nelson_siegel
+        """
+        pass
+    
+    def build_forward_curve(self, spot_curve, tenors):
+        """构建远期曲线"""
+        pass
+    
+    def build_volatility_surface(self, options_data):
+        """构建波动率曲面"""
+        pass
+
+class PricingEngine:
+    """定价引擎"""
+    
+    def price_bond(self, bond_params, market_data):
+        """债券定价"""
+        pass
+    
+    def price_swap(self, swap_params, curve):
+        """利率互换定价"""
+        pass
+    
+    def price_option(self, option_params, market_data, model="black_scholes"):
+        """期权定价"""
+        pass
+```
+
+### 3. 统一接口层 (Unified Interface)
+
+```python
+class FICCServiceBus:
+    """FICC服务总线"""
+    
+    def register_service(self, service_name, service_instance):
+        """注册服务"""
+        pass
+    
+    def get_service(self, service_name):
+        """获取服务"""
+        pass
+    
+    def invoke_service(self, service_name, method, params):
+        """调用服务"""
+        pass
+
+class DataAdapter:
+    """数据适配器"""
+    
+    def adapt_market_data(self, raw_data, target_format):
+        """适配市场数据"""
+        pass
+    
+    def adapt_trade_data(self, raw_data, target_format):
+        """适配交易数据"""
+        pass
+    
+    def adapt_risk_data(self, raw_data, target_format):
+        """适配风险数据"""
+        pass
+```
+
+## 与上层插件的集成
+
+```python
+# 业务插件使用核心服务示例
+
+from ficc_core import CurveBuilder, PricingEngine, DataConnectionManager
+
+class FixedIncomePlugin:
+    def __init__(self):
+        self.curve_builder = CurveBuilder()
+        self.pricing_engine = PricingEngine()
+        self.data_conn = DataConnectionManager()
+    
+    def analyze_bond_portfolio(self, portfolio):
+        # 使用核心服务获取市场数据
+        market_data = self.data_conn.connect_market_data("bloomberg")
+        
+        # 使用核心服务构建收益率曲线
+        yield_curve = self.curve_builder.build_yield_curve(
+            instruments=market_data.get_instruments(),
+            method="cubic_spline"
+        )
+        
+        # 使用核心服务定价
+        for bond in portfolio.bonds:
+            price = self.pricing_engine.price_bond(
+                bond_params=bond.params,
+                market_data=market_data
+            )
+```
+
+## 依赖项
+
+- pandas >= 2.0.0
+- numpy >= 1.24.0
+- scipy >= 1.11.0
